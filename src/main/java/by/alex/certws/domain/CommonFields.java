@@ -1,58 +1,78 @@
 package by.alex.certws.domain;
 
+import java.io.Serializable;
 import java.time.ZonedDateTime;
+
+import javax.persistence.Column;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+import javax.persistence.MappedSuperclass;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 import by.alex.certws.utils.DateUtils;
 
-public class CommonFields {
+@MappedSuperclass
+public abstract class CommonFields implements Serializable {
+	
+	/**
+	 * Serial. ID, generated
+	 */
+	private static final long serialVersionUID = 5618898539406697796L;
+
+	@Id
+	@GeneratedValue(strategy = GenerationType.AUTO)
 	@JsonProperty("id")
-	private long Id;
+	@Column(name = "id", nullable = false)
+	private long id;
 
 	@JsonProperty("name")
-	private String Name;
+	@Column(name = "name", nullable = true)
+	private String name;
 
 	@JsonProperty("dateCreated")
-	private ZonedDateTime DateCreated;
+	@Column(name = "dateCreated", nullable = false)
+	private ZonedDateTime dateCreated;
 
-	@JsonProperty("lastUpdated")
-	private ZonedDateTime DateUpdated;
+	@JsonProperty("dateUpdated")
+	@Column(name = "dateUpdated", nullable = false)
+	private ZonedDateTime dateUpdated;
 
-	public CommonFields(long Id, String Name) {
-		this.Id = Id;
-		this.Name = Name;
-		this.DateCreated = DateUtils.CurrentUTCDateTime();
-		this.DateUpdated = this.DateCreated;
+	protected CommonFields(long id, String name) {
+		this.id = id;
+		this.name = name;
+		this.dateCreated = DateUtils.CurrentUTCDateTime();
+		this.dateUpdated = this.dateCreated;
 	}
 
-	public CommonFields() {
-		// TODO Auto-generated constructor stub
+	protected CommonFields() {
+
 	}
 
 	public void UpdateNotify() {
-		this.DateUpdated = DateUtils.CurrentUTCDateTime();
+		this.dateUpdated = DateUtils.CurrentUTCDateTime();
 	}
 
 	public long getId() {
-		return this.Id;
+		return this.id;
 	}
 
 	public String getName() {
-		return this.Name;
+		return this.name;
 	}
 
 	public void setName(String target) {
-		this.Name = target;
+		this.name = target;
 		this.UpdateNotify();
 	}
 
 	public ZonedDateTime getDateCreated() {
-		return this.DateCreated;
+		return this.dateCreated;
 	}
 
 	public ZonedDateTime getDateUpdated() {
-		return this.DateUpdated;
+		return this.dateUpdated;
 	}
 
 }

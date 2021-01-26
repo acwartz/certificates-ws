@@ -1,68 +1,80 @@
 package by.alex.certws.domain;
 
 import java.util.ArrayList;
-import java.util.Collection;
+import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
+
+import javax.persistence.CascadeType;
+import javax.persistence.Entity;
+import javax.persistence.FetchType;
+import javax.persistence.OneToMany;
+import javax.persistence.Table;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 
-@JsonSerialize
-public class Certificate extends CommonFields {
 
+@JsonSerialize
+@Entity
+@Table(name = "certificates")
+public class Certificate extends CommonFields {
+	
+	
+
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = -3444580092047125843L;
+	
 	@JsonProperty("content")
-	private String Content;
+	private String content;
 
 	@JsonProperty("tags")
-	private ArrayList<Tag> Tags;
+	@OneToMany(targetEntity=Tag.class, mappedBy="id",cascade=CascadeType.ALL, fetch = FetchType.LAZY)    
+	private List<Tag> tags = new ArrayList<>();
 
 	public Certificate() {
 		super();
-		this.Tags = new ArrayList<Tag>();
 	}
 
-	public Certificate(long Id, String Name) {
-		super(Id, Name);
-		this.Tags = new ArrayList<Tag>(); // TODO: Avoid code duplication..
+	public Certificate(long certId, String certName) {
+		super(certId, certName);
 	}
 
-	public Certificate(long Id, String Name, String Content) {
-		super(Id, Name);
-		this.Tags = new ArrayList<Tag>(); // TODO: Avoid code duplication..
-		this.setContent(Content);
+	public Certificate(long certId, String certName, String content) {
+		super(certId, certName);
+		this.setContent(content);
 	}
 
-	public Certificate(long Id, String Name, String Content, String[] Tags) {
-		super(Id, Name);
-		this.Tags = new ArrayList<Tag>(); // TODO: Avoid code duplication..
-		this.setContent(Content);
-		for (String tag : Tags) {
+	public Certificate(long id, String name, String content, String[] tags) {
+		super(id, name);
+		this.setContent(content);
+		for (String tag : tags) {
 			addTag(tag);
 		}
 	}
 
 	public String getContent() {
-		return this.Content;
+		return this.content;
 	}
 
 	public void setContent(String target) {
-		this.Content = target;
+		this.content = target;
 		this.UpdateNotify();
 	}
 
-	public ArrayList<Tag> getTags() {
-		return this.Tags;
+	public List<Tag> getTags() {
+		return this.tags;
 	}
 
 	public Optional<Tag> findTagByName(String name) {
-		Collection<Tag> list = (Collection<Tag>) this.Tags;
-		return list.stream().filter(Objects::nonNull)
+		return this.tags.stream().filter(Objects::nonNull)
 				.filter(t -> (Objects.nonNull(t.getName()) && t.getName().compareTo(name) == 0)).findAny();
 	}
 
-	public long addTag(String TagName) {
-		Optional<Tag> match = this.findTagByName(TagName);
+	public long addTag(String tagName) {
+		Optional<Tag> match = this.findTagByName(tagName);
 		if (match.isPresent()) {
 			return match.get().getId();
 			// throw new ETagExistsException();
@@ -71,10 +83,10 @@ public class Certificate extends CommonFields {
 		}
 	}
 
-	public Boolean removeTag(String Target) {
-		Optional<Tag> match = this.findTagByName(Target);
+	public Boolean removeTag(String target) {
+		Optional<Tag> match = this.findTagByName(target);
 		if (match.isPresent()) {
-			return this.Tags.remove(match.get());
+			return this.tags.remove(match.get());
 		} else {
 			// TODO: MUST throw exception
 			return false;
